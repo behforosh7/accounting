@@ -1,0 +1,56 @@
+version: '3.4'
+
+services:
+  accounting:
+    container_name: app
+    image: accounting
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./app:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "1812:1812/udp"
+      - "1813:1813/udp"
+      - "514:514/udp"
+    expose:
+      - "8000/tcp"
+    depends_on:
+      - db
+  db:
+    container_name: postgres
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: accountingadmin
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: accounting
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+
+  nginx:
+        image: nginx
+        container_name: nginx
+        restart: always
+        ports: 
+          - "80:80"
+          - "443:443"
+        volumes:
+          - ./default.conf:/etc/nginx/conf.d/default.conf  
+          - static_volume:/app/static
+          - media_volume:/app/media
+          - ./privkey.pem:/root/ssl/key.pem
+          - ./cert.pem:/root/ssl/cert.pem                 
+        depends_on:
+          - db
+          - accounting
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

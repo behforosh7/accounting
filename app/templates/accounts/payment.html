@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<form class="row g-3 needs-validation" novalidate="" method="post">
+    {% csrf_token %}
+    <div class="row g-3 needs-validation">
+      <div class="col-md-6"><label class="form-label" for="validationCustom03">نام کاربری:</label>
+        {{request.user.username}}
+      </div>
+    </div>
+    <div class="row g-3 needs-validation">
+        <div class="col-md-6"><label class="form-label" for="validationCustom03">{{form.voucher_type.label}}</label>
+            {{form.voucher_type}}{{form.voucher_type.help_text}}</div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">مبلغ :</label>
+            <span class="badge text-success" id="labelPrice"></span>
+        </div>            
+    </div>
+    <div class="row g-3">
+      <div class="col-6">
+      <div class="avatar avatar-4xl">
+        <img  src="{% static 'img/logos/Irankish.png' %}" alt="" />
+      </div>
+      </div>
+    </div>
+    <div class="col-6"><button class="btn btn-primary" type="submit">پرداخت شتابی</button></div>
+    <script>
+        function selectVoucher() {
+          const selectControl = document.getElementById("vouchertype");
+          const selectedIndex = selectControl.selectedIndex;
+          const selectedOption = selectControl.options[selectedIndex];
+          
+          const selectedOptionText = selectedOption.text;
+          const selectedOptionValue = selectedOption.value;
+          var arr = selectedOptionText.split("-");
+          var price=arr[1];
+          document.getElementById("labelPrice").innerHTML =price;
+            } 
+    </script>
+    
+</form>
+  {% if messages %}
+  {% for message in messages %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+  <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+    <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p><button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+  <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+    <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p><button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+  {% if form.errors %}
+  <div class="alert alert-error">
+      <ul>
+          {% for field in form %}
+          {% if field.errors %}
+          {% for error in field.errors %}
+          <div class="alert alert-danger" role="alert">Field:{{field.name}} {{ error|escape }}</div>
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+      </ul>
+      {% if form.non_field_errors %}
+      {{ form.non_field_errors }}
+      {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}
+

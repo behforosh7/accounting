@@ -1,0 +1,16 @@
+# To ensure app dependencies are ported from your virtual environment/host machine into your container, run 'pip freeze > requirements.txt' in the terminal to overwrite this file
+django >4.1,<4.2
+gunicorn==20.1.0
+python-decouple
+django-simple-captcha
+django-multi-captcha-admin
+psycopg2-binary
+pyrad
+RouterOS-api
+django-ipware
+django-jalali-date
+django-model-utils
+django-xff
+requests
+django-axes
+pycryptodome

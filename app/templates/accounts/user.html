@@ -1,0 +1,77 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<form class="row g-3 needs-validation" novalidate="" method="post">
+  {% csrf_token %}
+  <div class="col-md-6">
+    <label class="form-label" for="validationCustomUsername">{{form.username.label}}</label>{{form.username}}
+    <div class="invalid-feedback">لطفا نام کاربری را وارد نمایید</div>
+  </div>
+
+  <div class="col-md-6"><label class="form-label" for="validationCustom02">{{form.mobile_nu.label}}</label>{{form.mobile_nu}}</div>
+  <div class="col-md-6"><label class="form-label" for="validationCustom01">{{form.first_name.label}}</label>{{form.first_name}}</div>
+  <div class="col-md-6"><label class="form-label" for="validationCustom02">{{form.last_name.label}}</label>{{form.last_name}}</div>
+  {% if not object %}
+  <div class="col-md-6">
+    <label class="form-label" for="validationCustom02">کلمه عبور</label>
+    {{form.password1}}
+    <div class="invalid-feedback">مقدار نباید خالی باشد</div>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label" for="validationCustom02">تایید کلمه عبور</label>
+    {{form.password2}}
+    <div class="invalid-feedback">مقدار نباید خالی باشد</div>
+  </div>
+  {% endif %}
+   <div class="col-md-6"><label class="form-label" for="validationCustom02">{{form.organization.label}}</label>{{form.organization}}</div>
+  <div class="col-md-6">
+    <label class="form-label" for="validationCustom02"></label>
+  </div>
+  <div class="col-md-6">
+    <div class="form-check">{{form.is_organization_admin}}<label class="form-check-label" for="gridCheck">{{form.is_organization_admin.label}}</label>
+    </div>
+  </div>
+ 
+  <div class="col-md-6">
+    <div class="form-check">{{form.is_active}}<label class="form-check-label" for="gridCheck">{{form.is_active.label}}</label>
+    </div>
+  </div>
+  <div class="col-6">
+    <button class="btn btn-primary" type="submit">ذخیره</button>
+  </div>
+</form>
+{% if messages %} 
+{% for message in messages %}
+ {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+<div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+  <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p>
+    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %} 
+{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+<div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+  <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+  <p class="mb-0 flex-1">{{ message|safe }}</p>
+  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if form.errors %}
+<div class="alert alert-error">
+  <ul>
+    {% for field in form %} 
+    {% if field.errors %} 
+    {% for error in field.errors %}
+    <div class="alert alert-danger" role="alert">
+      Field:{{field.name}} {{ error|escape }}
+    </div>
+    {% endfor %}
+    {% endif %} 
+    {% endfor %}
+  </ul>
+  {% if form.non_field_errors %} {{ form.non_field_errors }} {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

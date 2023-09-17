@@ -1,0 +1,145 @@
+{% extends 'base.html' %} {% load static %} {% block content %} {% load jalali_tags %}
+<div class="card mb-3">
+  <div class="position-absolute top-0 start-0">      
+    <h6 class="badge badge-soft-primary py-1 py-xl-0">تاریخ:</h6>    
+    <h6 class="badge badge-soft-primary py-1 py-xl-0">{{object_list.date_str}}</h6>    
+</div>  
+  <div class="position-absolute top-0 end-0"> 
+      <h6 class="badge badge-soft-primary py-1 py-xl-0">لاگ کارکرد کاربران جزئی</h6>
+  </div>   
+  <div class="card-body pt-0">
+      <div class="tab-content">
+          <div class="tab-pane preview-tab-pane active" role="tabpanel" aria-labelledby="tab-dom-f1f635ad-27f6-4e4f-8ac8-ea1fd3f4edd8" id="dom-f1f635ad-27f6-4e4f-8ac8-ea1fd3f4edd8">
+            <div id="tableExample3" data-list='{"valueNames":["mobile_nu","username","last_name","organization","download","upload","login","logout"],"page":20,"pagination":true,"filter":true}'>
+              <div class="card-header">
+                <div class="row g-1">
+                  <div class="col-md-2 align-items-center py-2">
+                    <h6 class="fs-0 mb-0 text-nowrap float-end py-1 py-xl-1">جستجو:</h6>
+                  </div>
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2"><input class="form-control form-control-sm" type="text"  data-list-filter-username="data-list-filter-username" placeholder="نام کاربری"></div>
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2"><input class="form-control form-control-sm" type="text"  data-list-filter-lastname="data-list-filter-lastname" placeholder="نام خانوادگی"></div>
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2"><input class="form-control form-control-sm" type="text"  data-list-filter-mobilenu="data-list-filter-mobilenu" placeholder="آدرس IP"></div>
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2"><select class="form-select form-select-sm" aria-label="Bulk actions" data-list-filter-org="data-list-filter-org">
+                    <option selected="" value="">سازمان</option>
+                      {% for organization in object_list.organizations %}
+                      <option value="{{organization.name}}">{{organization.name}}</option>
+                      {% endfor %} 
+                  </select></div>
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2  d-none"><select class="form-select form-select-sm" aria-label="Bulk actions" data-list-filter-isactive="data-list-filter-isactive">
+                      <option selected="" value="">وضعیت</option>
+                      <option value="فعال">فعال</option>
+                      <option value="مسدود">مسدود</option>
+                  </select></div>      
+                </div>
+            
+                <form class="row g-3 needs-validation" novalidate="" method="post">
+                  {% csrf_token %}
+                  <div class="row g-1">
+                    <div class="col-md-2 align-items-center  py-2">      
+                    <label class="form-label float-end">محدوده تاریخ ورود:</label>
+                  </div>
+                  <div class="col-md-5 align-items-center  py-2">      
+                      <input class="form-control form-control-sm datetimepicker" id="timepicker2" name="start_date" type="text" placeholder="y/m/d تا y/m/d" data-options='{"mode":"range","dateFormat":"Y/m/d","disableMobile":true,"locale":"fa"}' />
+                    </div>
+                    <div class="col-md-1 align-items-center pe-3 py-2">      
+                        <button class="btn btn-primary btn-sm"  type="submit" name="submit" >جستجو</button>    
+                    </div>
+                  </div>
+                </form>
+            
+            
+              </div>
+              <div class="row justify-content-end g-0">
+                <div class="table-responsive scrollbar">
+                  <table
+                    class="table table-sm table-striped fs--1 mb-0 overflow-hidden"
+                  >
+                    <thead class="bg-200 text-900">
+                      <tr>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="mobile_nu">آدرس IP</th>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="username">نام کاربری</th>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="last_name">نام</th>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="organization">سازمان</th>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="download">مقدار دانلود</th>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="upload">مقدار آپلود</th>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="login">زمان ورود</th>
+                        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="logout">زمان خروج</th>
+                      </tr>
+                    </thead>
+                    <tbody class="list" id="table-purchase-body">
+                      {% for acc in object_list.accounting %}
+                      <tr class="btn-reveal-trigger">
+                        <th class="align-middle white-space-nowrap mobile_nu">
+                          {{acc.user_ip_address}}
+                        </th>
+                        <th class="align-middle white-space-nowrap username">
+                          {{acc.user.username}}
+                        </th>
+                        <th class="align-middle white-space-nowrap last_name">
+                          {{acc.user.last_name}} {{acc.user.first_name}}
+                        </th>
+                        <th class="align-middle white-space-nowrap organization">
+                          {{acc.user.organization}}
+                        </th>
+                        <th class="align-middle white-space-nowrap download">
+                          {{acc.acct_output_octets|filesizeformat}}
+                        </th>
+                        <td class="align-middle white-space-nowrap upload">
+                          {{acc.acct_input_octets|filesizeformat}}
+                        </td>
+                        <td class="align-middle white-space-nowrap login">
+                          {{acc.login_time|to_jalali:'%y/%m/%d _ %H:%M:%S'}}
+                        </td>
+                        <td class="align-middle white-space-nowrap logout">
+                          {{acc.logout_time|to_jalali:'%y/%m/%d _ %H:%M:%S'}}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex justify-content-center mt-3">
+                  <button
+                    class="btn btn-sm btn-falcon-default me-1"
+                    type="button"
+                    title="Previous"
+                    data-list-pagination="prev"
+                  >
+                    <span class="fas fa-chevron-left"></span>
+                  </button>
+                  <ul class="pagination mb-0"></ul>
+                  <button
+                    class="btn btn-sm btn-falcon-default ms-1"
+                    type="button"
+                    title="Next"
+                    data-list-pagination="next"
+                  >
+                    <span class="fas fa-chevron-right"> </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+
+          </div>
+      </div>
+  </div>
+  {% if messages %}
+  {% for message in messages %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+  <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+    <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p><button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+    {% endif %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+    <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+      <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+      <p class="mb-0 flex-1">{{ message|safe }}</p><button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}  
+</div>
+
+{% endblock %}

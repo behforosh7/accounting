@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>سامانه مدیریت کاربران VPN</title>
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicons/favicon-16x16.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicons/favicon.ico' %}">
+    <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">    
+    <link href="{% static 'css/theme.min.css' %}" rel="stylesheet" id="style-default">
+    <link href="{% static 'css/fonts.css' %}" rel="stylesheet">
+  </head>
+
+
+  <body>
+    <main class="main" id="top">
+      <div class="container" data-layout="container">
+        <div class="row flex-center min-vh-100 py-6">
+          <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 col-xxl-4"><a class="d-flex flex-center mb-4" ><img class="me-2" src="{% static 'img/icons/spot-illustrations/falcon.png' %}" alt="" width="58"><span class="font-base  fs-5 d-inline-block">احراز هویت</span></a>
+            <div class="card">
+              <div class="card-body p-4 p-sm-5">
+                <div class="row flex-between-center mb-2">
+                  <div class="col-auto">
+                    <h5>ورود به سامانه</h5>
+                  </div>
+                  <div>
+                {% if accounting %}
+                <form id="Form" action="{% url 'main:login' %}" method="post">
+                {% else %}
+                <form id="Form" action="{% url 'accounts:login' %}" method="post">
+                {% endif %}
+                  {% csrf_token %}
+                  <div class="mb-3"><input class="form-control" name="username" type="text" placeholder="نام کاربری"></div>
+                  <div class="input-group"><input class="form-control" id="id_password12" name="password" type="password" placeholder="کلمه عبور">
+                    <span class="input-group-text"><i class="far fa-eye" id="togglePassword12" style="cursor: pointer;">نمایش</i></span></div>
+                  <div class="row flex-between-center">
+                    <div class="col-auto">
+                      <div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="basic-checkbox" checked="checked"><label class="form-check-label mb-0" for="basic-checkbox">مرا به خاطر بسپار</label></div>
+                    </div>
+                    <div class="col-auto"><a class="fs--1" href="#">رمز عبور را فراموش کرده اید؟</a></div>
+                  </div>
+                  <div class="mb-3">
+    							  {{form.captcha.errors}}
+                    {{form.captcha}}
+                    <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">ورود</button></div>
+                </form>
+
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+                  <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+                  <p class="mb-0 flex-1">{{ message|safe }}</p><button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    <ul>
+                        {% for field in form %}
+                        {% if field.errors %}
+                        {% for error in field.errors %}
+                        <div class="alert alert-danger" role="alert">{{ error|escape }}</div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                    {% if form.non_field_errors %}
+                    {{ form.non_field_errors }}
+                    {% endif %}
+                </div>
+                {% endif %}              
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+   
+
+    <script> 
+      const togglePassword = document.querySelector('#togglePassword12');
+      const password = document.querySelector('#id_password12');
+    
+      togglePassword.addEventListener('click', function (e) {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('text-danger');
+    });
+    </script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+  
+    <script>
+        const captchas = document.querySelectorAll('img.captcha')
+        
+        function headers(options) {
+          options = options || {}
+          options.headers = options.headers || {}
+          options.headers['X-Requested-With'] = 'XMLHttpRequest'
+          return options
+        }
+        
+        for (const captcha of captchas) {
+          const anchor = document.createElement('a')
+          anchor.href = '#void'
+          anchor.classList.add('captcha-refresh')
+          anchor.textContent = 'Refresh'
+          anchor.addEventListener('click', ({ target }) => {
+            const url = `${window.location.origin}/captcha/refresh/`
+            let formEl = target.parentElement
+        
+            while (formEl && formEl.tagName.toLowerCase() !== 'form') {
+              formEl = formEl.parentElement
+            }
+        
+            fetch(url, headers())
+              .then(res => res.json())
+              .then(json => {
+                formEl.querySelector('input[name="captcha_0"]').value = json.key
+                captcha.setAttribute('src', json.image_url)
+                document.getElementById('audioSource').setAttribute('src', json.audio_url)
+                document.getElementById('audio').load()
+              })
+              .catch(console.error)
+        
+            return false
+          })
+        
+          captcha.after(anchor)
+        }
+      </script>
+  </body>
+
+</html>

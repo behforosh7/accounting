@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  accounting:
+    image: accounting
+    container_name: accounting
+    # command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./app:/app
+    ports:
+      - "1812:1812/udp"
+      - "1813:1813/udp"
+      - "514:514/udp"
+      - "8000:8000/tcp"
+    depends_on:
+      - db
+  db:
+    container_name: postgres
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: accountingadmin
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: accounting
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    ports:
+      - "5432:5432/tcp"
+volumes:
+  postgres_data:

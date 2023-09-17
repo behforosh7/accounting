@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% load jalali_tags %}
+{% load humanize %}
+
+<div class="card mb-3">
+  <div class="card-body pt-0">
+    <div class="position-absolute top-0 start-0">      
+        <h6 class="badge badge-soft-primary py-1 py-xl-0">تاریخ:</h6>    
+        <h6 class="badge badge-soft-primary py-1 py-xl-0">{{object_list.date_str}}</h6>    
+    </div>  
+    <div class="position-absolute top-0 end-0"> 
+        <h6 class="badge badge-soft-primary py-1 py-xl-0">نمودار بیشترین مصرف کاربران</h6>
+    </div>        
+          <div class="card-header">
+              <div class="row flex-between-end">
+                <form class="row g-1 needs-validation" novalidate="" method="post">
+                    {% csrf_token %}
+
+
+                     <div class="col-md-2 align-items-center  py-2">      
+                      <label class="form-label float-end">محدوده تاریخ ورود:</label>
+                    </div>
+                    <div class="col-md-5 align-items-center  py-2">      
+                        <input class="form-control form-control-sm datetimepicker" id="timepicker2" name="start_date" type="text" placeholder="y/m/d تا y/m/d" data-options='{"mode":"range","dateFormat":"Y/m/d","disableMobile":true,"locale":"fa"}' />
+                      </div>
+                      <div class="col-md-1 align-items-center pe-3 py-2">      
+                          <button class="btn btn-primary btn-sm"  type="submit" name="submit" >جستجو</button>    
+                      </div>
+
+                  </form>  
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2 d-none"><select class="form-select form-select-sm" aria-label="Bulk actions" data-list-filter-org="data-list-filter-org">
+                    <option selected="" value="">سازمان</option>
+                  </select></div>                     
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2  d-none"><select class="form-select form-select-sm" aria-label="Bulk actions" data-list-filter-isactive="data-list-filter-isactive">
+                    <option selected="" value="">وضعیت</option>
+                    <option value="فعال">فعال</option>
+                    <option value="مسدود">مسدود</option>
+                </select></div>              
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2  d-none"><input class="form-control form-control-sm" type="text"  data-list-filter-username="data-list-filter-username" placeholder="نام کاربری"></div>
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2  d-none"><input class="form-control form-control-sm" type="text"  data-list-filter-lastname="data-list-filter-lastname" placeholder="نام خانوادگی"></div>
+                  <div class="col-md-2 col-xxl-0 align-items-center py-2  d-none"><input class="form-control form-control-sm" type="text"  data-list-filter-mobilenu="data-list-filter-mobilenu" placeholder="آدرس IP"></div>
+
+                  <div class="col-auto ms-auto">
+                      <div class="nav nav-pills nav-pills-falcon flex-grow-1" role="tablist"></div>
+                  </div>
+              </div>
+          </div>
+          <div class="card-body bg-light">
+              <div class="tab-content">
+                  <div class="tab-pane preview-tab-pane active" role="tabpanel" aria-labelledby="tab-dom-d3ec69a8-bb27-4342-9ad9-2891fba49350" id="dom-d3ec69a8-bb27-4342-9ad9-2891fba49350">
+                      <div class="echart-bar-stacked-chart-example" style="min-height: 350px;" data-echart-responsive="true"></div>
+                  </div>
+              </div>
+          </div>
+          <div class="card-body bg-light">
+            <canvas class="max-w-100" id="chartjs-pie-chart" width="350"></canvas>
+          </div>
+
+  </div>
+    {% if messages %} 
+    {% for message in messages %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+    <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+    <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+        <p class="mb-0 flex-1">{{ message|safe }}</p>
+        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %} 
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+    <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+    <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p>
+    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %} 
+    {{ object_list.xAxisData|json_script:"xAxisData_data" }}
+    {{ object_list.download_data|json_script:"download_data_data" }}
+    {{ object_list.upload_data|json_script:"upload_data_data" }}
+    {{ object_list.color_list|json_script:"color_list_data" }}
+    {{ object_list.total_usage|json_script:"total_usage_data" }}
+</div>
+
+
+<script>
+    var echartsBarStackedChartInit = function echartsBarStackedChartInit() {
+      var $barStackedChartEl = document.querySelector('.echart-bar-stacked-chart-example');
+    
+      if ($barStackedChartEl) {
+        var userOptions = utils.getData($barStackedChartEl, 'options');
+        var chart = window.echarts.init($barStackedChartEl);
+        //var xAxisData = ["A","B","C","D","مهر","آبان","آذر","1","2","3"];
+        //var _data=[4,55,66,74,32,12,63,89,22,8]
+        //var _data2=[5,6,33,22,33,55,77,86,43,23] 
+        var xAxisData=JSON.parse(document.getElementById('xAxisData_data').textContent);
+        var _data=JSON.parse(document.getElementById('download_data_data').textContent);
+        var _data2=JSON.parse(document.getElementById('upload_data_data').textContent);
+  
+        var emphasisStyle = {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: utils.rgbaColor(utils.getColor('dark'), 0.3)
+          }
+        };
+    
+        var getDefaultOptions = function getDefaultOptions() {
+          return {
+            color: [utils.getColor('primary'), utils.getColor('success')],
+            legend: {
+              data: ['دانلود', 'آپلود'],
+              textStyle: {
+                fontFamily:'body-font',
+                color: utils.getGrays()['700']
+              },
+              right: 0,
+    
+            },
+            toolbox: {
+              left: 0,
+              feature: {
+    
+    
+                magicType: {
+                  type: ['stack', 'tiled'],
+                  title: {stack:'استک',tiled :'تایل'}
+    
+                },
+    
+              },
+              iconStyle: {
+                borderColor: utils.getGrays()['700'],
+                borderWidth: 1
+              },
+    
+            },
+            tooltip: {
+              trigger: 'item',
+              padding: [7, 10],
+              backgroundColor: utils.getGrays()['100'],
+              borderColor: utils.getGrays()['300'],
+              borderWidth: 1,
+              transitionDuration: 0,
+              textStyle:{
+                fontFamily:'body-font',
+              },
+              axisPointer: {
+                type: 'none'
+              },
+    
+            },
+            xAxis: {
+              data: xAxisData,
+              splitLine: {
+                show: false
+              },
+              splitArea: {
+                show: false
+              },
+              axisLabel: {
+                fontFamily:'body-font',
+                color: utils.getGrays()['600']
+              },
+              axisLine: {
+                lineStyle: {
+                  color: utils.getGrays()['400']
+                }
+              }
+            },
+            yAxis: {
+              splitLine: {
+                lineStyle: {
+                  color: utils.getGrays()['200']
+                }
+              },
+              axisLabel: {
+                fontFamily:'body-font',
+                color: utils.getGrays()['600']
+              }
+            },
+            series: [{
+              name: 'دانلود',
+              type: 'bar',
+              stack: 'one',
+              emphasis: emphasisStyle,
+              data: _data
+            }, {
+              name: 'آپلود',
+              type: 'bar',
+              stack: 'one',
+              emphasis: emphasisStyle,
+              data: _data2
+            }
+            ],
+            grid: {
+              top: '14%',
+              bottom: 10,
+              left: 5,
+              right: 7,
+              containLabel: true
+            }
+          };
+        };
+    
+        echartSetOption(chart, userOptions, getDefaultOptions);
+      }
+    };
+  </script>
+<script>
+  var chartPie = function chartPie() {
+    var pie = document.getElementById('chartjs-pie-chart');
+  
+    var getOptions = function getOptions() {
+      return {
+        type: 'pie',
+        data: {
+          datasets: [{
+            data: JSON.parse(document.getElementById('total_usage_data').textContent),        
+            backgroundColor: JSON.parse(document.getElementById('color_list_data').textContent),
+            //backgroundColor: [utils.rgbaColor(utils.getColor('facebook'), 0.75), utils.rgbaColor(utils.getColor('youtube'), 0.75), utils.rgbaColor(utils.getColor('twitter'), 0.75), utils.rgbaColor(utils.getColor('linkedin'), 0.75), utils.rgbaColor(utils.getColor('github'), 0.75)],
+            borderWidth: 1,
+            borderColor: utils.getGrays()['100']
+          }],
+          labels: JSON.parse(document.getElementById('xAxisData_data').textContent)
+        },
+        options: {
+          plugins: {
+            tooltip: chartJsDefaultTooltip()
+          },
+          maintainAspectRatio: false
+        }
+      };
+    };
+  
+    chartJsInit(pie, getOptions);
+  };
+</script>
+<script>
+  var productShareDoughnutInit = function productShareDoughnutInit() {
+    var marketShareDoughnutElement = document.getElementById('marketShareDoughnut');
+  
+    var getOptions = function getOptions() {
+      return {
+        type: 'doughnut',
+        data: {
+          labels: ['حجم باقی مانده','حجم مصرف شده'],
+          datasets: [{
+            data: [{{total_volume}},{{used}} ],
+            backgroundColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            borderColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            fontFamily:'body-font'
+          }]
+        },
+        options: {
+          tooltips: chartJsDefaultTooltip(),
+          rotation: -90,
+          circumference: '180',
+          cutout: '80%',
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      };
+    };
+  
+    chartJsInit(marketShareDoughnutElement, getOptions);
+  };
+</script>
+<script>
+  var productShareDoughnutInit1 = function productShareDoughnutInit() {
+    var marketShareDoughnutElement = document.getElementById('marketShareDoughnut1');
+  
+    var getOptions = function getOptions() {
+      return {
+        type: 'doughnut',
+        data: {
+          labels: ['روز باقی مانده','روز گذشته'],
+          datasets: [{
+            data: [{{remain_days}},{{used_days}} ],
+            backgroundColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            borderColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            fontFamily:'body-font'
+          }]
+        },
+        options: {
+          tooltips: chartJsDefaultTooltip(),
+          rotation: -90,
+          circumference: '180',
+          cutout: '80%',
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      };
+    };
+  
+    chartJsInit(marketShareDoughnutElement, getOptions);
+  };
+</script>
+  {% endblock %}

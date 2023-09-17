@@ -1,0 +1,368 @@
+{% extends 'base.html' %} 
+{% load static %}
+{% block content %} 
+{% load jalali_tags %}
+{% load humanize %}
+<div class="row g-3 mb-3">
+  {% if messages %} 
+  {% for message in messages %}
+   {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+  <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+    <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+      <p class="mb-0 flex-1">{{ message|safe }}</p>
+      <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %} 
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+  <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+    <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p>
+    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+<div class="col-sm-6 col-md-6">    
+    <div class="card h-100">
+      <div class="bg-holder d-none d-xl-block bg-card" style="background-image:url(assets/img/icons/spot-illustrations/corner-4.png);opacity: 0.7;"></div>
+      <!--/.bg-holder-->
+      <div class="card-body">
+        <h5><span class="fas fa-user text-primary fs-2"></span> نام کاربری: {{request.user.username}}  سازمان: {{request.user.organization}}</h5>
+        {% comment %} <div class="d-flex align-items-center"><img class="me-3" src="{% static '/img/icons/weather-icon.png' %}" alt="" height="60">         {% endcomment %}
+          <h5><span class="fas fa-box-open text-primary fs-2"></span>بسته فعال: {{voucher.voucher_type}} </h5>
+          <div><strong class="me-2" src="assets/img/icons/weather-icon.png">حجم بسته:</strong>
+            <div class="badge rounded-pill badge-soft-primary fs--2">{{voucher.voucher_type.volume|intcomma}} مگابایت</div>
+            <strong class="me-2">مدت بسته:</strong>
+            <div class="badge rounded-pill badge-soft-primary fs--2">{{voucher.voucher_type.duration_day}} روز</div>
+          </div>        
+        {% comment %} </div>         {% endcomment %}
+      </div>
+    </div>
+</div>
+
+  <div class="col-sm-6 col-md-6">
+    <div class="card h-100">
+      <div class="card-header pb-0">
+        <h6 class="mb-0 mt-2 d-flex align-items-center">مقدار حجم مصرف شده کاربر</h6>
+        <div class="d-xxl-none">{{used|filesizeformat}}</div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div class="d-flex flex-column justify-content-between">
+            <p class="font-sans-serif lh-1 mb-1 fs-2">{{used_darsad}}%</p><span class="badge badge-soft-warning rounded-pill fs--2"></span>
+          </div>
+          <div><canvas class="my-n5" id="marketShareDoughnut" width="112"></canvas>
+            <p class="mb-0 text-center fs--2 mt-4 text-500">حجم</p>
+          </div>
+          <div><canvas class="my-n5" id="marketShareDoughnut1" width="112"></canvas>
+              <p class="mb-0 text-center fs--2 mt-4 text-500">مدت</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header">
+      <div class="row flex-between-end">
+          <div class="col-auto align-self-center">
+              <h5 class="mb-0" data-anchor="data-anchor">جدول مصرف</h5>
+          </div>
+      </div>
+  </div>
+  <div class="card-body pt-0">
+      <div class="tab-content">
+          <div class="tab-pane preview-tab-pane active" role="tabpanel" aria-labelledby="tab-dom-f1f635ad-27f6-4e4f-8ac8-ea1fd3f4edd8" id="dom-f1f635ad-27f6-4e4f-8ac8-ea1fd3f4edd8">
+            <div id="tableExample3" data-list='{"valueNames":["name","email","payment"],"page":10,"pagination":true}'>
+              <div class="row justify-content-end g-0">
+                <div class="table-responsive scrollbar">
+                  <table
+                    class="table table-sm table-striped fs--1 mb-0 overflow-hidden"
+                  >
+                    <thead class="bg-200 text-900">
+                      <tr>
+                        <th
+                          class="sort pe-1 align-middle white-space-nowrap"
+                          data-sort="ip">
+                          آدرس IP
+                        </th>
+                        <th
+                          class="sort pe-1 align-middle white-space-nowrap"
+                          data-sort="download">
+                          مقدار مصرف
+                        </th>
+                        <th
+                          class="sort pe-1 align-middle white-space-nowrap"
+                          data-sort="login">
+                          زمان ورود
+                        </th>
+                        <th
+                          class="sort pe-1 align-middle white-space-nowrap"
+                          data-sort="logout">
+                          زمان خروج
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="list" id="table-purchase-body">
+                      {% for acc in accounting %}
+                      <tr class="btn-reveal-trigger">
+                        <th class="align-middle white-space-nowrap ip">
+                          {{acc.user_ip_address}}
+                        </th>
+                        <td class="align-middle white-space-nowrap dounload">
+                          {{acc.acct_input_octets|add:acc.acct_output_octets|filesizeformat}}
+                        </td>
+                        <td class="align-middle white-space-nowrap login">
+                          {{acc.login_time|to_jalali:'%y/%m/%d _ %H:%M:%S'}}
+                        </td>
+                        <td class="align-middle white-space-nowrap logout">
+                          {{acc.logout_time|to_jalali:'%y/%m/%d _ %H:%M:%S'}}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex justify-content-center mt-3">
+                  <button
+                    class="btn btn-sm btn-falcon-default me-1"
+                    type="button"
+                    title="Previous"
+                    data-list-pagination="prev">
+                    <span class="fas fa-chevron-left"></span>
+                  </button>
+                  <ul class="pagination mb-0"></ul>
+                  <button
+                    class="btn btn-sm btn-falcon-default ms-1"
+                    type="button"
+                    title="Next"
+                    data-list-pagination="next">
+                    <span class="fas fa-chevron-right"> </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+  <div class="card mb-3">
+    <div class="card h-100" dir="ltr">
+      <div class="card-header">
+          <div class="row flex-between-end">
+              <div class="col-auto align-self-center">
+                  <h5 class="mb-0" >نمودار مصرف</h5>
+              </div>
+              <div class="col-auto ms-auto">
+                  <div class="nav nav-pills nav-pills-falcon flex-grow-1" role="tablist"></div>
+              </div>
+          </div>
+      </div>
+      <div class="card-body bg-light">
+          <div class="tab-content">
+              <div class="tab-pane preview-tab-pane active" role="tabpanel" aria-labelledby="tab-dom-d3ec69a8-bb27-4342-9ad9-2891fba49350" id="dom-d3ec69a8-bb27-4342-9ad9-2891fba49350">
+                  <div class="echart-bar-stacked-chart-example" style="min-height: 350px;" data-echart-responsive="true"></div>
+              </div>
+          </div>
+    </div>
+  </div>
+    {{ xAxisData|json_script:"xAxisData_data" }}
+    {{ download_data|json_script:"download_data_data" }}
+    {{ upload_data|json_script:"upload_data_data" }} 
+</div>
+<script>
+  var echartsBarStackedChartInit = function echartsBarStackedChartInit() {
+    var $barStackedChartEl = document.querySelector('.echart-bar-stacked-chart-example');
+  
+    if ($barStackedChartEl) {
+      var userOptions = utils.getData($barStackedChartEl, 'options');
+      var chart = window.echarts.init($barStackedChartEl);
+      //var xAxisData = ["A","B","C","D","مهر","آبان","آذر","1","2","3"];
+      //var _data=[4,55,66,74,32,12,63,89,22,8]
+      //var _data2=[5,6,33,22,33,55,77,86,43,23] 
+      var xAxisData=JSON.parse(document.getElementById('xAxisData_data').textContent);
+      var _data=JSON.parse(document.getElementById('download_data_data').textContent);
+      var _data2=JSON.parse(document.getElementById('upload_data_data').textContent);
+
+      var emphasisStyle = {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowColor: utils.rgbaColor(utils.getColor('dark'), 0.3)
+        }
+      };
+  
+      var getDefaultOptions = function getDefaultOptions() {
+        return {
+          color: [utils.getColor('primary'), utils.getColor('success')],
+          legend: {
+            data: ['دانلود', 'آپلود'],
+            textStyle: {
+              fontFamily:'body-font',
+              color: utils.getGrays()['700']
+            },
+            right: 0,
+  
+          },
+          toolbox: {
+            left: 0,
+            feature: {
+  
+  
+              magicType: {
+                type: ['stack', 'tiled'],
+                title: {stack:'استک',tiled :'تایل'}
+  
+              },
+  
+            },
+            iconStyle: {
+              borderColor: utils.getGrays()['700'],
+              borderWidth: 1
+            },
+  
+          },
+          tooltip: {
+            trigger: 'item',
+            padding: [7, 10],
+            backgroundColor: utils.getGrays()['100'],
+            borderColor: utils.getGrays()['300'],
+            borderWidth: 1,
+            transitionDuration: 0,
+            textStyle:{
+              fontFamily:'body-font',
+            },
+            axisPointer: {
+              type: 'none'
+            },
+  
+          },
+          xAxis: {
+            data: xAxisData,
+            splitLine: {
+              show: false
+            },
+            splitArea: {
+              show: false
+            },
+            axisLabel: {
+              fontFamily:'body-font',
+              color: utils.getGrays()['600']
+            },
+            axisLine: {
+              lineStyle: {
+                color: utils.getGrays()['400']
+              }
+            }
+          },
+          yAxis: {
+            splitLine: {
+              lineStyle: {
+                color: utils.getGrays()['200']
+              }
+            },
+            axisLabel: {
+              fontFamily:'body-font',
+              color: utils.getGrays()['600']
+            }
+          },
+          series: [{
+            name: 'دانلود',
+            type: 'bar',
+            stack: 'one',
+            emphasis: emphasisStyle,
+            data: _data
+          }, {
+            name: 'آپلود',
+            type: 'bar',
+            stack: 'one',
+            emphasis: emphasisStyle,
+            data: _data2
+          }
+          ],
+          grid: {
+            top: '14%',
+            bottom: 10,
+            left: 5,
+            right: 7,
+            containLabel: true
+          }
+        };
+      };
+  
+      echartSetOption(chart, userOptions, getDefaultOptions);
+    }
+  };
+</script>
+<script>
+  var productShareDoughnutInit = function productShareDoughnutInit() {
+    var marketShareDoughnutElement = document.getElementById('marketShareDoughnut');
+  
+    var getOptions = function getOptions() {
+      return {
+        type: 'doughnut',
+        data: {
+          labels: ['حجم باقی مانده','حجم مصرف شده'],
+          datasets: [{
+            data: [{{total_volume}},{{used}} ],
+            backgroundColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            borderColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            fontFamily:'body-font'
+          }]
+        },
+        options: {
+          tooltips: chartJsDefaultTooltip(),
+          rotation: -90,
+          circumference: '180',
+          cutout: '80%',
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      };
+    };
+  
+    chartJsInit(marketShareDoughnutElement, getOptions);
+  };
+</script>
+<script>
+  var productShareDoughnutInit1 = function productShareDoughnutInit() {
+    var marketShareDoughnutElement = document.getElementById('marketShareDoughnut1');
+  
+    var getOptions = function getOptions() {
+      return {
+        type: 'doughnut',
+        data: {
+          labels: ['روز باقی مانده','روز گذشته'],
+          datasets: [{
+            data: [{{remain_days}},{{used_days}} ],
+            backgroundColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            borderColor: [utils.getColor('primary'), utils.getColor('gray-300')],
+            fontFamily:'body-font'
+          }]
+        },
+        options: {
+          tooltips: chartJsDefaultTooltip(),
+          rotation: -90,
+          circumference: '180',
+          cutout: '80%',
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      };
+    };
+  
+    chartJsInit(marketShareDoughnutElement, getOptions);
+  };
+</script>
+{% endblock %}
+  {% comment %} 
+  {% block onready_js %}
+  var my_list = "{{my_list}}";
+  {% endblock %} {% endcomment %}

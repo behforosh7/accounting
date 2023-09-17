@@ -1,0 +1,23 @@
+{% extends 'base.html' %} 
+{% load static %}
+{% block content %} 
+{% load jalali_tags %}
+{% load humanize %}
+<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.min.js">
+</script>
+<script>
+  function getUpdatedTime(){
+     $.ajax({url: "{% url 'accounts:calltime' %}", success: function(result){
+         var content = "Days: "+result['days']+", Hours: "+result['hours']+", Minutes: "+result['minutes']+", Seconds: "+result['seconds'];
+         $("h5").text(content);
+         
+         setTimeout(function(){getUpdatedTime();}, 5000); // will call function to update time every 2 seconds
+     }});
+  }
+  $(document).ready(function(){
+     getUpdatedTime();
+  });
+</script>
+<h1>the value for number is: <script>docWrite(content)</script></h1>
+
+{% endblock %}

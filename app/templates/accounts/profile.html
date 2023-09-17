@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<form class="row g-3 needs-validation" novalidate="" method="post">
+    {% csrf_token %}
+    <div class="row g-3 needs-validation">
+      <div class="col-md-6"><label class="form-label" for="validationCustom03">{{form.name.label}}</label>
+        {{form.name}}
+      </div>
+    </div>
+    <div class="col-md-6"><label class="form-label" for="validationCustom03">{{form.download_speed.label}}</label>
+      {{form.download_speed}}{{form.download_speed.help_text}}</div>
+    <div class="col-md-6"><label class="form-label" for="validationCustom02">{{form.upload_speed.label}}</label>
+      {{form.upload_speed}}{{form.upload_speed.help_text}}</div>
+    <div class="col-md-12">
+        <div class="form-check"></div>
+        <div class="form-check">{{form.is_limit_speed.label}}{{form.is_limit_speed}}
+        <label class="form-check-label" for="gridCheck">{{form.is_limit_speed.help_text}}</label></div>
+    </div> 
+    <div class="col-md-6"><label class="form-label" for="validationCustom02">{{form.daily_download.label}}</label>
+        {{form.daily_download}}{{form.daily_download.help_text}}
+    </div>
+    <div class="col-md-6"><label class="form-label" for="validationCustom02">{{form.monthly_download.label}}</label>
+        {{form.monthly_download}}{{form.monthly_download.help_text}}
+    </div>
+    <div class="col-md-12">
+        <div class="form-check"></div>
+        <div class="form-check">{{form.is_limit_download.label}}{{form.is_limit_download}}
+        <label class="form-check-label" for="gridCheck">{{form.is_limit_download.help_text}}</label></div>
+    </div> 
+    <div class="col-md-12">
+        <div class="form-check"></div>
+        <div class="form-check">{{form.is_voucher}}{{form.is_voucher.label}}
+        <label class="form-check-label" for="gridCheck">{{form.is_voucher.help_text}}</label></div>
+    </div> 
+    <div class="col-6"><button class="btn btn-primary" type="submit">ذخیره</button></div>
+  </form>
+  {% if messages %}
+  {% for message in messages %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+  <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+    <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p><button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+  <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+    <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+    <p class="mb-0 flex-1">{{ message|safe }}</p><button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+  {% if form.errors %}
+  <div class="alert alert-error">
+      <ul>
+          {% for field in form %}
+          {% if field.errors %}
+          {% for error in field.errors %}
+          <div class="alert alert-danger" role="alert">Field:{{field.name}} {{ error|escape }}</div>
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+      </ul>
+      {% if form.non_field_errors %}
+      {{ form.non_field_errors }}
+      {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}

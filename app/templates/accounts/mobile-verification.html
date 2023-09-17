@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>سامانه مدیریت کاربران VPN</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicons/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicons/favicon-16x16.png' %}">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicons/favicon.ico' %}">
+  <meta name="msapplication-TileImage" content="{% static 'img/favicons/mstile-150x150.png' %}">
+  <meta name="theme-color" content="#ffffff">
+  <script src="{% static 'js/config.js' %}"></script>
+  <script src="{% static 'vendors/overlayscrollbars/OverlayScrollbars.min.js' %}"></script>
+
+
+  <link href="{% static 'vendors/overlayscrollbars/OverlayScrollbars.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/fonts.css' %}" rel="stylesheet">
+  <link href="{% static 'css/theme-rtl.min.css' %}" rel="stylesheet" id="style-rtl">
+  <link href="{% static 'css/theme.min.css' %}" rel="stylesheet" id="style-default">
+  <link href="{% static 'css/user-rtl.min.css' %}" rel="stylesheet" id="user-style-rtl">
+  <link href="{% static 'css/user.min.css' %}" rel="stylesheet" id="user-style-default">
+  <script>
+    var isRTL = JSON.parse(localStorage.getItem('isRTL'));
+    if (isRTL) {
+      var linkDefault = document.getElementById('style-default');
+      var userLinkDefault = document.getElementById('user-style-default');
+      linkDefault.setAttribute('disabled', true);
+      userLinkDefault.setAttribute('disabled', true);
+      document.querySelector('html').setAttribute('dir', 'rtl');
+    } else {
+      var linkRTL = document.getElementById('style-rtl');
+      var userLinkRTL = document.getElementById('user-style-rtl');
+      document.querySelector('html').setAttribute('dir', 'ltr');
+      linkRTL.setAttribute('disabled', true);
+      userLinkRTL.setAttribute('disabled', true);
+    }
+  </script>
+</head>
+
+
+<body>
+ 
+<main class="main" id="top">
+  <div class="container" data-layout="container">
+    <script>
+      var isFluid = JSON.parse(localStorage.getItem('isFluid'));
+      if (isFluid) {
+        var container = document.querySelector('[data-layout]');
+        container.classList.remove('container');
+        container.classList.add('container-fluid');
+      }
+    </script>
+    <div class="row flex-center min-vh-100 py-6">
+      <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 col-xxl-4"><a class="d-flex flex-center mb-4" href= "{% url 'main:index' %}"><img class="me-2" src="{% static 'img/icons/spot-illustrations/falcon.png' %}" alt="" width="58"><span class="font-sans-serif fw-bolder fs-5 d-inline-block">اعتبار سنجی</span></a>
+        <div class="card">
+          <div class="card-body p-4 p-sm-5">
+            <h5 class="text-center">تایید شماره موبایل</h5>
+            {% if check %} 
+              <form class="mt-3" action="{% url 'accounts:mobile-verification' %}" method="post">
+              {% csrf_token %}
+              <div class="mb-3"><label class="form-label" name="mobile_nu">{{request.user.mobile_nu}}</label></div>
+              <button class="btn btn-secondary d-block w-100 mt-3" type="submit" disabled="disabled" name="submit">ارسال کد تایید</button>
+            </form>
+            <form class="mt-3" action="{% url 'accounts:mobile-verification-check' pk=pk expire_at=expire_at %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3"><input class="form-control" name="code" type="text" placeholder="ورود کد پیامک شده"></div>
+                <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">تایید</button>
+                <div class="alert alert-warning" role="alert">زمان انقضاء: {{expire_at}}</div>                
+            </form>
+            {% else %}
+            <form class="mt-3" action="{% url 'accounts:mobile-verification' %}" method="post">
+              {% csrf_token %}
+              <div class="mb-3"><label class="form-label" name="mobile_nu">{{request.user.mobile_nu}}</label></div>
+              <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">ارسال کد تایید</button>
+            </form>
+            <form class="mt-3" action="{% url 'accounts:mobile-verification'  %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3"><input class="form-control" name="code" disabled="disabled" type="text" placeholder="ورود کد پیامک شده"></div>
+                <button class="btn btn-secondary d-block w-100 mt-3" type="submit" disabled="disabled"  name="submit">تایید</button>
+            </form>
+            {% endif %} 
+
+            {% if messages %} 
+            {% for message in messages %}
+             {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <div class="alert alert-success border-2 d-flex align-items-center" role="alert">
+              <div class="bg-success me-3 icon-item"><span class="fas fa-check-circle text-white fs-3"></span></div>
+                <p class="mb-0 flex-1">{{ message|safe }}</p>
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %} 
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger border-2 d-flex align-items-center" role="alert">
+              <div class="bg-danger me-3 icon-item"><span class="fas fa-times-circle text-white fs-3"></span></div>
+              <p class="mb-0 flex-1">{{ message|safe }}</p>
+              <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+
+
+          </div>
+        </div>
+      </div>
+      {% if form.errors %}
+      <div class="alert alert-error">
+          <ul>
+              {% for field in form %}
+              {% if field.errors %}
+              {% for error in field.errors %}
+              <div class="alert alert-danger" role="alert">{{ error|escape }}</div>
+              {% endfor %}
+              {% endif %}
+              {% endfor %}
+          </ul>
+          {% if form.non_field_errors %}
+          {{ form.non_field_errors }}
+          {% endif %}
+      </div>
+      {% endif %} 
+    </div>
+   </div>
+</main>
+
+
+<script src="{% static 'vendors/popper/popper.min.js' %}"></script>
+<script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+<script src="{% static 'vendors/anchorjs/anchor.min.js' %}"></script>
+<script src="{% static 'vendors/is/is.min.js' %}"></script>
+
+<script src="{% static 'js/momenjs.js' %}"></script>
+<script src="{% static 'js/moment-range.js' %}"></script>
+<script src="{% static 'js/flatpickr.full.js' %}"></script>
+<script src="{% static 'js/flatpickr.local-fa.js' %}"></script>
+<script src="{% static 'js/dayjs.local-fa.js' %}"></script>
+<script src="{% static 'vendors/dayjs/dayjs.min.js' %}"></script>
+
+
+<script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>
+<script src="{% static 'vendors/lodash/lodash.min.js' %}"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+<script src="{% static 'vendors/list.js/list.min.js' %}"></script>
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+
+</html>
