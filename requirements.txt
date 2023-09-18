@@ -14,3 +14,4 @@ django-xff
 requests
 django-axes
 pycryptodome
+django-queryset-csv

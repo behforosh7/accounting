@@ -48,7 +48,7 @@ def index(request):
         voucher=None
     if not voucher:
         return render(request,'main/userdashboard.html')
-    used_sum=Accounting.objects.filter(user=request.user,login_time__gte = voucher.created_date).aggregate(download=Sum('acct_output_octets'),upload=Sum('acct_input_octets'))
+    used_sum=Accounting.objects.filter(user=request.user,login_time__gte = voucher.start_date).aggregate(download=Sum('acct_output_octets'),upload=Sum('acct_input_octets'))
 
     if not used_sum['download']:
         download=0
@@ -66,7 +66,7 @@ def index(request):
 
     remain_days=0
     used_days=0
-    used_days=(timezone.now()-voucher.created_date).days
+    used_days=(timezone.now()-voucher.start_date).days
     remain_days=voucher.voucher_type.duration_day-used_days
     if remain_days<0:
         remain_days=0
