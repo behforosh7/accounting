@@ -8,4 +8,5 @@ urlpatterns = [
     path('user-usage',UserUsageListView.as_view(),name='user-usage'),
     path('org-usage',OrgUsageListView.as_view(),name='org-usage'),
     path('log',UserLogListView.as_view(),name='log-list'),
+    path('accounting/csvexport',accounting_csvexport,name='accounting-csvexport'),
 ]

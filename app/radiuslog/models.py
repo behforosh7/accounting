@@ -1,7 +1,7 @@
 from django.db import models
 from accounts.models import User
 from django.utils.translation import gettext_lazy as _
-
+from jalali_date import datetime2jalali
 class TerminateCause(models.Model):
     name = models.CharField(max_length=25)
     def __str__(self):
@@ -59,6 +59,9 @@ class Accounting(models.Model):
             ] 
     def __str__(self):
         return self.user.username
+    # @property
+    # def jalali_login_time(self):
+    #     return datetime2jalali(self.login_time)
 class UserLog(models.Model):
     user= models.ForeignKey(User,null=True, on_delete=models.DO_NOTHING)
     user_ip_address= models.GenericIPAddressField(protocol='IPv4',verbose_name=u"آدرس شبکه کاربر")

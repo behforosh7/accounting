@@ -22,17 +22,48 @@ from django.utils.timezone import datetime
 from .isikato import IsikatoAPI
 import json
 from django.core.exceptions import BadRequest
+from accounts.utils import queryset_to_csv
+import os
+import mimetypes
+from django.db.models import Value, CharField, ExpressionWrapper
 timezone.activate('Asia/Tehran')
+from jdatetime import datetime as jdatetime
+@permission_required('accounts.add_user')
+def voucher_csvexport(request):
+    try:
+        csv_file_path=os.path.join(settings.MEDIA_ROOT,'voucher.csv')
+        voucher_csv=Voucher.objects.values('user__username','user__organization__name','voucher_type__name'
+                                  ,'used','is_valid','assign_by__username','start_date'
+                                  ).order_by('-id') 
+    #     voucher_csv = Voucher.objects.all().values('user__username','user__organization__name','voucher_type__name'
+    #                               ,'used','is_valid','assign_by__username','start_date'
+    #                               ).order_by('-id').annotate(
+    #                                 jalali_date=ExpressionWrapper(
+    #     Value(datetime2jalali('start_date').strftime('%Y-%m-%d')),
+    #     output_field=CharField()
+    # ))
+        queryset_to_csv(voucher_csv,csv_file_path)
+        if os.path.exists(csv_file_path):
+            mime_type, _ = mimetypes.guess_type(csv_file_path)                
+            with open(csv_file_path, 'rb') as fh:    
+                response = HttpResponse(fh.read(), content_type=mime_type)    
+                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(csv_file_path)    
+                return response                                           
 
-def calltime(request):
-    return render(request, 'accounts/onlineusers.html')
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, e) 
+    return redirect('/')   
 
-def cal_time(request):
-    #Time Calculations Performed Here
-    time1=datetime.now()
-    print(time1.hour)
-    time_dict={'days': time1.microsecond, 'hours': time1.hour, 'minutes': time1.minute, 'seconds': time1.second}
-    return JsonResponse(time_dict)
+# def calltime(request):
+#     return render(request, 'accounts/onlineusers.html')
+
+# def cal_time(request):
+#     #Time Calculations Performed Here
+#     time1=datetime.now()
+#     print(time1.hour)
+#     time_dict={'days': time1.microsecond, 'hours': time1.hour, 'minutes': time1.minute, 'seconds': time1.second}
+#     return JsonResponse(time_dict)
+@login_required
 def paymentresult(request):
     status_str = request.GET.get('status')
     reference = request.GET.get('ref')
@@ -70,6 +101,7 @@ def paymentresult(request):
     context={'status': status,'reference': reference,'voucher_type_name': payments.voucher_type.name,'price': payments.amount}
     return render(request, 'accounts/paymentresult.html',context)
 
+@login_required
 def payment(request):
     if request.POST:
         form = PaymentForm(request.POST)

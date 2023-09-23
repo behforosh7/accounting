@@ -11,6 +11,60 @@ from jalali_date import jdatetime,datetime2jalali,date2jalali
 from django.contrib import messages
 from datetime import date,datetime
 import random
+import os
+import mimetypes
+from django.contrib.auth.decorators import permission_required
+from django.conf import settings
+from djqscsv import write_csv
+from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.db.models import CharField, Value
+timezone.activate('Asia/Tehran')
+
+def queryset_to_csv(qs,file_path):
+    field_header={
+        'user__username':'کاربر',
+        'user__organization__name':'سازمان',
+        'user_ip_address':'آدرس شبکه کاربر',
+        'acct_status_type__name':'نوع لاگ',
+        'acct_input_octets':'حجم آپلود',
+        'acct_output_octets':'حجم دانلود',
+        'acct_input_packets':'تعداد پکت ارسالی',
+        'acct_output_packets':'تعداد پکت دریافتی',
+        'acct_session_time':'زمان جلسه',
+        'acct_terminate_cause__name':'علت خاتمه دادن',
+        'login_time':'زمان ورود',
+        'logout_time':'زمان خروج',
+        'update_time':'زمان آخرین تغییر',
+        'jalali_login_time':'زمان آخرین تغییر',
+    }
+    with open(file_path, 'wb') as csv_file:
+        write_csv(qs, csv_file,field_header_map=field_header)
+    return True 
+@permission_required('accounts.add_user')
+def accounting_csvexport(request):
+    try:
+        csv_file_path=os.path.join(settings.MEDIA_ROOT,'accounting.csv')
+        accounting_csv=Accounting.objects.values('user__username','user__organization__name','user_ip_address'
+                                  ,'acct_status_type__name','acct_input_octets','acct_output_octets','acct_input_packets'
+                                  ,'acct_output_packets','acct_session_time','acct_terminate_cause__name','login_time'
+                                  ,'logout_time','update_time'
+                                  ).order_by('-id') 
+        # print('***************',accounting_csv[0])
+        # date1=datetime2jalali(accounting_csv[0]['login_time'])
+        # print('***************',date1)
+        # accounting_csv.annotate(jalali_login_time=Value(datetime2jalali('login_time'),output_field=CharField()))
+        queryset_to_csv(accounting_csv,csv_file_path)
+        if os.path.exists(csv_file_path):
+            mime_type, _ = mimetypes.guess_type(csv_file_path)                
+            with open(csv_file_path, 'rb') as fh:    
+                response = HttpResponse(fh.read(), content_type=mime_type)    
+                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(csv_file_path)    
+                return response                                           
+
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, e) 
+    return redirect('/')   
 
 class OrgUsageListView(PermissionRequiredMixin, ListView):
     permission_required = ['accounts.add_user',

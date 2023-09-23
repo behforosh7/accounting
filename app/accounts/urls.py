@@ -24,8 +24,8 @@ urlpatterns = [
     path('voucher',VoucherListView.as_view(),name='voucher-list'),
     path('voucher/create',VoucherCreate.as_view(),name='voucher-create'),
     path('voucher/<int:pk>/edit',VoucherEdit.as_view(),name='voucher-edit'),
-    path('time',calltime,name='time'),
-    path('calltime',cal_time,name='calltime'),
+    path('voucher/csvexport',voucher_csvexport,name='voucher-csvexport'),
+
     path('captcha/', include('captcha.urls')),
     path('payment',payment,name='payment'),
     path('paymentresult',paymentresult,name='paymentresult'),
@@ -35,3 +35,5 @@ urlpatterns = [
     # path('mobileverification/',MobileVerificationView.as_view(),name='mobile-verification'),
     # path('login/accounting',login_accounting_view,name='login_accounting'),
     # path('logout',logout_view,name='logout'),
+    # path('time',calltime,name='time'),
+    # path('calltime',cal_time,name='calltime'),
