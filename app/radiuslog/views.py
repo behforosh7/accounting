@@ -36,8 +36,9 @@ def queryset_to_csv(qs,file_path):
         'login_time':'زمان ورود',
         'logout_time':'زمان خروج',
         'update_time':'زمان آخرین تغییر',
-        'jalali_login_time':'زمان آخرین تغییر',
-    }
+    } 
+        # 'jalali_login_time':'زمان آخرین تغییر',
+    
     with open(file_path, 'wb') as csv_file:
         write_csv(qs, csv_file,field_header_map=field_header)
     return True 
