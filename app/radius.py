@@ -121,7 +121,7 @@ class RadiusServer(server.Server):
         rate_limit=limit[0]
         total_limit=limit[1]    
         reply_message='User Authenticate Successfully'
-        reply={"Idle-Timeout":'604800',"Service-Type": "Framed-User",
+        reply={"Idle-Timeout":'2592000',"Service-Type": "Framed-User",
                         "Session-Timeout":second,
                         "Mikrotik-Rate-Limit": rate_limit,
                         "Mikrotik-Total-Limit": total_limit[1],
