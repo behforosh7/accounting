@@ -218,7 +218,10 @@ class VoucherEdit(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
             messages.add_message(self.request, messages.ERROR,'این بسته استفاده شده و قابل تغییر نیست')
             raise PermissionDenied
             # return reverse('accounts:voucher-list')
-
+    def get_form_kwargs(self):
+        kwargs = super(VoucherEdit, self).get_form_kwargs()
+        kwargs['request']= self.request
+        return kwargs  
 class OrganizationEdit(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     permission_required = 'accounts.add_user'
     model = Organization

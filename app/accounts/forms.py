@@ -179,6 +179,7 @@ class PaymentForm(forms.ModelForm):
         read_only_fields = ("amount",)    
 class VoucherForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+        print('***********kwarg',kwargs)
         self.request = kwargs.pop('request')
         super(forms.ModelForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():

@@ -235,7 +235,7 @@ class RadiusServer(server.Server):
         download=acc.acct_output_octets
 
         acc.save()
-        vouchers=Voucher.objects.filter(user=user,is_valid=True).order_by('id')   
+        vouchers=Voucher.objects.filter(user=user,is_valid=True,start_date__isnull=False).order_by('id')   
         if vouchers:
             voucher=vouchers[0]
             total_usage=download+upload

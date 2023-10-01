@@ -79,9 +79,9 @@
         <td class="duration_day align-middle white-space-nowrap py-2">{{voucher.voucher_type.duration_day}}</td>
         <td class="created_date align-middle white-space-nowrap py-2">{{voucher.created_date|to_jalali:'%y/%m/%d _ %H:%M:%S'}}</td>
         {% if voucher.is_valid%}
-        <td class="is_active align-middle"><span class="badge badge rounded-pill badge-soft-success"><span class="ms-1 fas fa-check" data-fa-transform="shrink-2">فعال</span></span></td>
+        <td class="is_active align-middle"><span class="badge badge rounded-pill badge-soft-success">فعال<span class="ms-1 fas fa-check" data-fa-transform="shrink-2"></span></span></td>
         {% else %}
-            <td class="is_active align-middle"><span class="badge badge rounded-pill badge-soft-secondary"><span class="ms-1 fas fa-ban" data-fa-transform="shrink-2">مسدود</span></span></td>
+        <td class="is_active align-middle"><span class="badge badge rounded-pill badge-soft-danger">مسدود<span class="ms-1 fas fa-ban" data-fa-transform="shrink-2"></span></span></td>
         {% endif %}
 
         <td class="align-middle white-space-nowrap py-2 text-end">

@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.conf.urls import (handler403, handler404, handler500)
 urlpatterns = [
     path('', include('main.urls')),
-    path('admin/', admin.site.urls),
+    path('madsa12shamim/', admin.site.urls),
     path('accounts/',include('accounts.urls')),
     path('log/', include('radiuslog.urls')),   
     path('captcha/', include('captcha.urls')),   
