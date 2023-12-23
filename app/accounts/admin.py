@@ -13,7 +13,7 @@ class CustomUserAdmin(TabularInlineJalaliMixin,UserAdmin):
     list_filter = ('organization',)
     fieldsets = (
         ('Authentication', {'fields': ('username','mobile_nu', 'password','first_name','last_name')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser','is_mobile_verified')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser','is_mobile_verified','force_change_pass')}),
         ('Organization', {'fields': ('organization','is_organization_admin')}),
         ('Profile', {'fields': ('profile',)}),
 

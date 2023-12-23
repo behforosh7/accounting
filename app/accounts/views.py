@@ -26,6 +26,7 @@ from accounts.utils import queryset_to_csv
 import os
 import mimetypes
 from django.db.models import Value, CharField, ExpressionWrapper
+from django.urls import reverse_lazy
 timezone.activate('Asia/Tehran')
 from jdatetime import datetime as jdatetime
 @permission_required('accounts.add_user')
@@ -377,12 +378,20 @@ class UserDelete(PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     permission_required = 'accounts.delete_user'
     model = User
     success_url = '/accounts/user'
-
-
+    success_url = reverse_lazy('user_list')
+    success_message = "کاربر با موفقیت حذف شد"
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        if obj.is_superuser:
+            raise PermissionDenied("امکان حذف کاربر مدیر وجود ندارد")
+        return obj
 @permission_required('accounts.change_user')
 def user_deactive(request, pk):
     try:
         user = get_object_or_404(User, pk=pk)
+        if user.is_superuser:
+            messages.add_message(request, messages.ERROR, 'امکان مسدود کردن کاربر مدیر وجود ندارد')
+            return redirect('/accounts/user')
         user.is_active = False
         user.created_user = request.user.id
         user.save()
@@ -508,6 +517,8 @@ def login_view(request):
                     request, username=username, password=password)
                 if user is not None:
                     login(request, user)
+                    if user.force_change_pass:
+                        return redirect('/accounts/resetpassword')
                     return redirect('/')
                 else:
                     messages.add_message(
@@ -540,6 +551,8 @@ def user_change_password(request, pk):
                 pass
             try:
                 form.save()
+                user_account.force_change_pass=True
+                user_account.save()
                 messages.add_message(request, messages.SUCCESS, 'کلمه عبور با موفقیت تغییر کرد')
             except:
                 messages.add_message(request, messages.ERROR, 'تغییر کلمه عبور با خطا مواجه شد!')

@@ -43,6 +43,8 @@ def lockout(request, credentials, *args, **kwargs):
 def index(request):
     if not request.user.is_authenticated:
         return redirect('/login')
+    if request.user.force_change_pass:
+        return redirect('/accounts/resetpassword')    
     vouchers=Voucher.objects.filter(user=request.user,is_valid=True).order_by('id')   
     if vouchers:
         voucher=vouchers[0]
@@ -50,17 +52,20 @@ def index(request):
         voucher=None
     if not voucher:
         return render(request,'main/userdashboard.html')
-    used_sum=Accounting.objects.filter(user=request.user,login_time__gte = voucher.start_date).aggregate(download=Sum('acct_output_octets'),upload=Sum('acct_input_octets'))
-
-    if not used_sum['download']:
+    try:
+        used_sum=Accounting.objects.filter(user=request.user,login_time__gte = voucher.start_date).aggregate(download=Sum('acct_output_octets'),upload=Sum('acct_input_octets'))
+        if not used_sum['download']:
+            download=0
+        else:
+            download=used_sum['download']
+        if not used_sum['upload']:
+            upload=0
+        else:
+            upload=used_sum['upload']
+    except:
         download=0
-    else:
-        download=used_sum['download']
-    if not used_sum['upload']:
         upload=0
-    else:
-        upload=used_sum['upload']
-    
+
     used=download+upload    
 
     voucher.used=used
@@ -68,7 +73,10 @@ def index(request):
 
     remain_days=0
     used_days=0
-    used_days=(timezone.now()-voucher.start_date).days
+    try:
+        used_days=(timezone.now()-voucher.start_date).days
+    except:
+        used_days=0
     remain_days=voucher.voucher_type.duration_day-used_days
     if remain_days<0:
         remain_days=0
@@ -142,10 +150,14 @@ def login_accounting_view(request):
                         mik_login=mikrotik_login(username, password, ip_add)
                         if mik_login[0]:
                             login(request, user)
+                            if user.force_change_pass:
+                                return redirect('/accounts/resetpassword')                               
                             return redirect('/') 
                         else:
                             if mik_login[1]=="Radius Error: عدم وجود بسته اینترنتی برای کاربر":
                                 login(request, user)
+                                if user.force_change_pass:
+                                    return redirect('/accounts/resetpassword')                                  
                                 #Radius Error: unknown host IP 192.168.100.7
                                 #Radius Error: RADIUS server is not responding
                                 #Radius Error: عدم وجود بسته اینترنتی برای کاربر
@@ -154,7 +166,6 @@ def login_accounting_view(request):
                                 return redirect('/')
                             else:
                                 messages.add_message(request, messages.ERROR,mik_login[1])                     
-
                     else:
                         messages.add_message(request, messages.ERROR,"خطا در شناسایی آدرس" )                     
                 except Exception as e:

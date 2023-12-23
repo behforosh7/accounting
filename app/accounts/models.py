@@ -15,6 +15,7 @@ from django.template.loader import render_to_string
 from .services import SendMessage
 from .helpers import normalize_mobile_number
 from django.contrib import messages
+from encrypted_model_fields.fields import EncryptedCharField
 
 class Profile(models.Model):
     name = models.CharField(
@@ -77,7 +78,7 @@ class UserManager(BaseUserManager):
 
 
 class Organization(models.Model):
-    name = models.CharField(max_length=255, verbose_name=u"نام سازمان")
+    name = EncryptedCharField(max_length=255, verbose_name=u"نام سازمان")
     profile = models.ForeignKey(Profile, verbose_name=u"پروفایل سازمان", blank=True, null=True, on_delete=models.SET_NULL)
     class Meta:
         verbose_name_plural = u"سازمان ها"
@@ -87,17 +88,18 @@ class Organization(models.Model):
 
 
 class User (AbstractBaseUser, PermissionsMixin):
-    mobile_nu = models.CharField(validators=[validate_mobile_number], blank=True, null=True,
+    mobile_nu = EncryptedCharField(validators=[validate_mobile_number], blank=True, null=True,
                                  max_length=12, verbose_name=u"شماره موبایل", help_text=u"Please enter your name...")
     username = models.CharField(max_length=50, verbose_name=u"نام کاربری", unique=True, blank=False, null=False)
-    first_name = models.CharField(max_length=50, null=True, blank=True, verbose_name=u"نام")
-    last_name = models.CharField(max_length=70, null=True, blank=True, verbose_name=u"نام خانوادگی")
+    first_name = EncryptedCharField(max_length=50, null=True, blank=True, verbose_name=u"نام")
+    last_name = EncryptedCharField(max_length=70, null=True, blank=True, verbose_name=u"نام خانوادگی")
     is_active = models.BooleanField(default=True, verbose_name=u"فعال")
     is_staff = models.BooleanField(default=False, verbose_name=u"مدیر")
     is_mobile_verified = models.BooleanField(default=False, verbose_name=u"تایید شماره موبایل")
     organization = models.ForeignKey(Organization, blank=True, null=True, verbose_name=u"سازمان", on_delete=models.SET_NULL)
     is_organization_admin = models.BooleanField(default=False, verbose_name=u"مدیر سازمان")
     profile = models.ForeignKey(Profile, blank=True, null=True,on_delete=models.SET_NULL, verbose_name=u"پروفایل کاربری")
+    force_change_pass = models.BooleanField(default=False, verbose_name=u"تغییر کلمه عبور")
     created_date = models.DateTimeField(auto_now_add=True, verbose_name=u"تاریخ ایجاد")
     updated_date = models.DateTimeField(auto_now=True, verbose_name=u"زمان تغییر")
     created_user = models.BigIntegerField(default=0, blank=True, null=True, verbose_name='کاربر ایجاد کننده')

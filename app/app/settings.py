@@ -48,7 +48,7 @@ PYMENT_USERNAME= config('PYMENT_USERNAME')
 PYMENT_PASSWORD= config('PYMENT_PASSWORD')
 PYMENT_ACCOUNT= config('PYMENT_ACCOUNT')
 PAYMENT_REDIRECT_URL= 'https://act.shamimhost.ir/accounts/paymentresult'
-
+FIELD_ENCRYPTION_KEY =config('FIELD_ENCRYPTION_KEY')
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 7200
 
@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'decouple',
     'axes',
     'utils',
+    'encrypted_model_fields',
 ]
 AUTHENTICATION_BACKENDS = [
     # AxesStandaloneBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
