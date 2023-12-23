@@ -3,6 +3,8 @@
 {% block content %}
 {% load jalali_tags %}
 {% load humanize %}
+{% load hide_django %}
+
 <div class="card mb-0" id="customersTable" data-list='{"valueNames":["username","last_name","organization","voucher_type","volume","used","duration_day","created_date","is_active"],"page":10,"pagination":true,"filter":true}'>
   <div class="position-absolute top-0 start-0">      
     <h6 class="badge badge-soft-primary py-1 py-xl-0">تاریخ:</h6>    
@@ -14,7 +16,7 @@
 
 
     <form class="row g-3 needs-validation" novalidate="" method="post">
-      {% csrf_token %}
+      {% h_csrf_token %}
       <div class="card-header">
         <div class="row g-1">
           <div class="col-md-2 align-items-center py-2">

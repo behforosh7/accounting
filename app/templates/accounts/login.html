@@ -1,4 +1,6 @@
 {% load static %}
+{% load hide_django %}
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
   <head>
@@ -35,7 +37,7 @@
                 {% else %}
                 <form id="Form" action="{% url 'accounts:login' %}" method="post">
                 {% endif %}
-                  {% csrf_token %}
+                  {% h_csrf_token %}
                   <div class="mb-3"><input class="form-control" name="username" type="text" placeholder="نام کاربری"></div>
                   <div class="input-group"><input class="form-control" id="id_password12" name="password" type="password" placeholder="کلمه عبور">
                     <span class="input-group-text"><i class="far fa-eye" id="togglePassword12" style="cursor: pointer;">نمایش</i></span></div>

@@ -37,7 +37,9 @@ def locked_out(request):
 
     return render(request, 'accounts/captcha.html', {'form': form})
 def lockout(request, credentials, *args, **kwargs):
-    return JsonResponse({"status": "به علت تلاش غیر مجاز برای ورود به سامانه نام کاربری شما به مدت 10 دقیقه غیر فعال شده است، لطفا با مدیر سامانه تماس بگیرید."}, status=403)
+    context = {'error_msg': "به علت تلاش غیر مجاز برای ورود به سامانه نام کاربری شما به مدت 10 دقیقه غیر فعال شده است، لطفا با مدیر سامانه تماس بگیرید.",}
+    return render(request, 'error/403.html',context)    
+    # return JsonResponse({"status": "به علت تلاش غیر مجاز برای ورود به سامانه نام کاربری شما به مدت 10 دقیقه غیر فعال شده است، لطفا با مدیر سامانه تماس بگیرید."},json_dumps_params={"ensure_ascii": False}, status=403)
 def index(request):
     if not request.user.is_authenticated:
         return redirect('/login')

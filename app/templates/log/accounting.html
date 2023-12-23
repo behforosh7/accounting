@@ -1,4 +1,6 @@
 {% extends 'base.html' %} {% load static %} {% block content %} {% load jalali_tags %}
+{% load hide_django %}
+
 <div class="card mb-3">
   <div class="position-absolute top-0 start-0">      
     <h6 class="badge badge-soft-primary py-1 py-xl-0">تاریخ:</h6>    
@@ -33,7 +35,7 @@
                 </div>
             
                 <form class="row g-3 needs-validation" novalidate="" method="post">
-                  {% csrf_token %}
+                  {% h_csrf_token %}
                   <div class="row g-1">
                     <div class="col-md-2 align-items-center  py-2">      
                     <label class="form-label float-end">محدوده تاریخ ورود:</label>

@@ -1,4 +1,6 @@
 {% extends 'base.html' %} {% load static %} {% block content %} {% load jalali_tags %}
+{% load hide_django %}
+
 <div class="card mb-3">
   <div class="position-absolute top-0 start-0">      
     <h6 class="badge badge-soft-primary py-1 py-xl-0">تاریخ:</h6>    
@@ -15,7 +17,7 @@
             <div id="tableExample3" data-list='{"valueNames":["ip","username","name","organization","download","upload","login","logout"],"page":50,"pagination":true}'>
               <div class="row justify-content-end g-0">
                 <form class="row g-1 needs-validation" novalidate="" method="post">
-                  {% csrf_token %}
+                  {% h_csrf_token %}
                   <div class="col-md-2 col-xxl-0 align-items-center py-2"><select name="org_name" class="form-select form-select-sm" aria-label="Bulk actions" data-list-filter-org="data-list-filter-org">
                     <option selected="" value="0">سازمان</option>
                       {% for organization in object_list.organizations %}

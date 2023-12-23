@@ -1,3 +1,4 @@
+{% load hide_django %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -62,24 +63,24 @@
             <h5 class="text-center">تایید شماره موبایل</h5>
             {% if check %} 
               <form class="mt-3" action="{% url 'accounts:mobile-verification' %}" method="post">
-              {% csrf_token %}
+              {% h_csrf_token %}
               <div class="mb-3"><label class="form-label" name="mobile_nu">{{request.user.mobile_nu}}</label></div>
               <button class="btn btn-secondary d-block w-100 mt-3" type="submit" disabled="disabled" name="submit">ارسال کد تایید</button>
             </form>
             <form class="mt-3" action="{% url 'accounts:mobile-verification-check' pk=pk expire_at=expire_at %}" method="post">
-                {% csrf_token %}
+                {% h_csrf_token %}
                 <div class="mb-3"><input class="form-control" name="code" type="text" placeholder="ورود کد پیامک شده"></div>
                 <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">تایید</button>
                 <div class="alert alert-warning" role="alert">زمان انقضاء: {{expire_at}}</div>                
             </form>
             {% else %}
             <form class="mt-3" action="{% url 'accounts:mobile-verification' %}" method="post">
-              {% csrf_token %}
+              {% h_csrf_token %}
               <div class="mb-3"><label class="form-label" name="mobile_nu">{{request.user.mobile_nu}}</label></div>
               <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">ارسال کد تایید</button>
             </form>
             <form class="mt-3" action="{% url 'accounts:mobile-verification'  %}" method="post">
-                {% csrf_token %}
+                {% h_csrf_token %}
                 <div class="mb-3"><input class="form-control" name="code" disabled="disabled" type="text" placeholder="ورود کد پیامک شده"></div>
                 <button class="btn btn-secondary d-block w-100 mt-3" type="submit" disabled="disabled"  name="submit">تایید</button>
             </form>

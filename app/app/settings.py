@@ -25,11 +25,13 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = [config('WEB_HOST'),'accounting.ir','127.0.0.1','act.shamimhost.ir']
+ALLOWED_HOSTS = [config('WEB_HOST'),'*']
 # ALLOWED_HOSTS = ['127.0.0.1',]
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = ['https://act.shamimhost.ir','https://127.0.0.1']
-CSRF_TRUSTED_ORIGINS = ['https://act.shamimhost.ir','https://127.0.0.1']
+    CSRF_TRUSTED_ORIGINS = ['https://act.shamimhost.ir','https://127.0.0.1','https://*']
+CSRF_TRUSTED_ORIGINS = ['https://act.shamimhost.ir','https://127.0.0.1','https://*']
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 LOG_SERVER_PORT=config('LOG_SERVER_PORT')
 RADIUS_PORT=config('RADIUS_PORT')
 RADIUS_SECRET=config('RADIUS_SECRET')
@@ -46,6 +48,10 @@ PYMENT_USERNAME= config('PYMENT_USERNAME')
 PYMENT_PASSWORD= config('PYMENT_PASSWORD')
 PYMENT_ACCOUNT= config('PYMENT_ACCOUNT')
 PAYMENT_REDIRECT_URL= 'https://act.shamimhost.ir/accounts/paymentresult'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 7200
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -61,6 +67,7 @@ INSTALLED_APPS = [
     'radiuslog',
     'decouple',
     'axes',
+    'utils',
 ]
 AUTHENTICATION_BACKENDS = [
     # AxesStandaloneBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
@@ -73,6 +80,7 @@ AUTHENTICATION_BACKENDS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'utils.middleware.AddCustomCSRFToRequestMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
