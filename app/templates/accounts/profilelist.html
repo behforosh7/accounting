@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+{% load hide_django %}
 {% load jalali_tags %}
 <div class="card mb-0" id="customersTable" data-list='{"valueNames":["name","download_speed","upload_speed","is_limit_speed","daily_download","monthly_download","is_limit_download","is_voucher"],"page":10,"pagination":true}'>
   <div class="card-header">

@@ -3,6 +3,7 @@
 {% block content %}
 {% load jalali_tags %}
 {% load humanize %}
+{% load hide_django %}
 
 <div class="card mb-3">
   <div class="card-body pt-0">
@@ -16,7 +17,7 @@
           <div class="card-header">
               <div class="row flex-between-end">
                 <form class="row g-1 needs-validation" novalidate="" method="post">
-                    {% csrf_token %}
+                    {% h_csrf_token %}
 
                     <div class="col-md-2 col-xxl-0 align-items-center py-2"><select name="org_name" class="form-select form-select-sm" aria-label="Bulk actions" data-list-filter-org="data-list-filter-org">
                       <option selected="" value="0">سازمان</option>
