@@ -104,11 +104,11 @@
                                 <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-user-edit"></span></span><span class="nav-link-text ps-1">حساب کاربری</span></div>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            {% comment %} <li class="nav-item">
                                 <a class="nav-link"  id="dashboard" href="{% url 'accounts:mobile-verification' %}" role="button" aria-expanded="false">
                                 <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-mobile-alt"></span></span><span class="nav-link-text ps-1">تایید شماره موبایل</span></div>
                                 </a>
-                            </li>   
+                            </li>    {% endcomment %}
                             <li class="nav-item">
                                 <a class="nav-link"  id="dashboard" href="{% url 'accounts:reset-password' %}" role="button" aria-expanded="false">
                                 <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-key"></span></span><span class="nav-link-text ps-1">تغییر کلمه عبور</span></div>

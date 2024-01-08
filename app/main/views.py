@@ -21,6 +21,11 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from accounts.forms import AxesCaptchaForm
 from axes.backends import AxesBackend
+from Crypto.PublicKey import RSA
+
+def generate_public_key(request):
+    public_key = settings.RSA_KEY.publickey().exportKey('PEM')
+    return HttpResponse(public_key, content_type='text/plain')
 
 class MyBackend(AxesBackend):
     def authenticate(self, request=None, *args, **kwargs):
@@ -150,17 +155,10 @@ def login_accounting_view(request):
                         mik_login=mikrotik_login(username, password, ip_add)
                         if mik_login[0]:
                             login(request, user)
-                            if user.force_change_pass:
-                                return redirect('/accounts/resetpassword')                               
                             return redirect('/') 
                         else:
                             if mik_login[1]=="Radius Error: عدم وجود بسته اینترنتی برای کاربر":
                                 login(request, user)
-                                if user.force_change_pass:
-                                    return redirect('/accounts/resetpassword')                                  
-                                #Radius Error: unknown host IP 192.168.100.7
-                                #Radius Error: RADIUS server is not responding
-                                #Radius Error: عدم وجود بسته اینترنتی برای کاربر
                                 message="کاربر محترم:به دلیل عدم وجود بسته اینترنتی فعال برای برقراری اینترنت ابتدا بسته مورد نظر را خریداری نمایید"
                                 messages.add_message(request, messages.ERROR,message)                     
                                 return redirect('/')

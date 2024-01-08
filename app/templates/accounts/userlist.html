@@ -37,7 +37,7 @@
         <th class="sort pe-1 align-middle white-space-nowrap" data-sort="is_active">وضعیت</th>
         <th class="sort pe-1 align-middle white-space-nowrap" data-sort="mobile_nu">شماره موبایل</th>
         <th class="sort pe-1 align-middle white-space-nowrap" data-sort="organization">سازمان</th>
-        <th class="sort pe-1 align-middle white-space-nowrap" data-sort="profile">پروفایل</th>
+        {% comment %} <th class="sort pe-1 align-middle white-space-nowrap" data-sort="profile">پروفایل</th> {% endcomment %}
         <th class="align-middle no-sort"></th>
       </tr>
       </thead>
@@ -61,7 +61,7 @@
         {% else %}
           <td class="organization align-middle white-space-nowrap py-2">{{user.organization}}</td>
         {% endif %}
-        <td class="last_name align-middle white-space-nowrap py-2">{{user.profile}}</td>
+        {% comment %} <td class="profile align-middle white-space-nowrap py-2">{{user.profile}}</td> {% endcomment %}
         <td class="align-middle white-space-nowrap py-2 text-end">
           <div class="dropdown font-sans-serif position-static"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal" type="button" id="customer-dropdown-0" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h fs--1"></span></button>
             <div class="dropdown-menu dropdown-menu-end border py-0" aria-labelledby="customer-dropdown-0">

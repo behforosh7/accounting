@@ -4,8 +4,13 @@
 <form class="row g-3 needs-validation" novalidate="" method="post">
   {% h_csrf_token %}
   <div class="col-md-6">
+    {% if not object %}
     <label class="form-label" for="validationCustomUsername">{{form.username.label}}</label>{{form.username}}
     <div class="invalid-feedback">لطفا نام کاربری را وارد نمایید</div>
+    {% else %}
+    <label class="form-label">نام کاربری:</label>
+    <label class="form-control">{{ username }}</label>
+    {% endif %}
   </div>
 
   <div class="col-md-6"><label class="form-label" for="validationCustom02">{{form.mobile_nu.label}}</label>{{form.mobile_nu}}</div>

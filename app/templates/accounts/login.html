@@ -33,24 +33,25 @@
                   </div>
                   <div>
                 {% if accounting %}
-                <form id="Form" action="{% url 'main:login' %}" method="post">
+                <form id="login-form" action="{% url 'main:login' %}" method="post">
                 {% else %}
-                <form id="Form" action="{% url 'accounts:login' %}" method="post">
+                <form id="login-form" action="{% url 'accounts:login' %}" method="post">
                 {% endif %}
                   {% h_csrf_token %}
-                  <div class="mb-3"><input class="form-control" name="username" type="text" placeholder="نام کاربری"></div>
-                  <div class="input-group"><input class="form-control" id="id_password12" name="password" type="password" placeholder="کلمه عبور">
+                  <div class="mb-3"><input class="form-control" name="username" type="text" placeholder="نام کاربری" autocomplete="username"></div>
+                  <div class="input-group"><input class="form-control" id="id_password12" name="password" type="password" placeholder="کلمه عبور" autocapitalize="off" autocomplete="new-password" autocorrect="off" spellcheck="false">
                     <span class="input-group-text"><i class="far fa-eye" id="togglePassword12" style="cursor: pointer;">نمایش</i></span></div>
-                  <div class="row flex-between-center">
+                  {% comment %} <div class="row flex-between-center">
                     <div class="col-auto">
                       <div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="basic-checkbox" checked="checked"><label class="form-check-label mb-0" for="basic-checkbox">مرا به خاطر بسپار</label></div>
                     </div>
                     <div class="col-auto"><a class="fs--1" href="#">رمز عبور را فراموش کرده اید؟</a></div>
-                  </div>
+                  </div> {% endcomment %}
                   <div class="mb-3">
     							  {{form.captcha.errors}}
                     {{form.captcha}}
-                    <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">ورود</button></div>
+                    <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">ورود</button>
+                  </div>
                 </form>
 
                 {% if messages %}
@@ -61,22 +62,6 @@
                 </div>
                 {% endfor %}
                 {% endif %}
-                {% if form.errors %}
-                <div class="alert alert-error">
-                    <ul>
-                        {% for field in form %}
-                        {% if field.errors %}
-                        {% for error in field.errors %}
-                        <div class="alert alert-danger" role="alert">{{ error|escape }}</div>
-                        {% endfor %}
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                    {% if form.non_field_errors %}
-                    {{ form.non_field_errors }}
-                    {% endif %}
-                </div>
-                {% endif %}              
               </div>
               </div>
             </div>
@@ -85,6 +70,30 @@
       </div>
     </main>
    
+<script>
+      fetch('/generate-public-key')
+          .then(response => response.text())
+          .then(publicKey => {
+              const encryptor = new JSEncrypt();
+              encryptor.setPublicKey(publicKey);
+  
+              const form = document.getElementById('login-form');
+              form.addEventListener('submit', event => {
+                // event.preventDefault();
+                const passwordInput = document.getElementById('id_password12');
+                const encryptedPassword = encryptor.encrypt(passwordInput.value);
+                console.log(encryptedPassword);
+
+                passwordInput.value = encryptedPassword;
+                const formData = new FormData(form);
+                fetch('/accounts/login', {
+                    method: 'POST',
+                    body: formData
+                })
+              })
+              
+          })
+</script>
 
     <script> 
       const togglePassword = document.querySelector('#togglePassword12');
@@ -96,8 +105,9 @@
         this.classList.toggle('text-danger');
     });
     </script>
+    <script src="{% static 'js/jsencrypt.min.js' %}"></script>
     <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
-  
+
     <script>
         const captchas = document.querySelectorAll('img.captcha')
         

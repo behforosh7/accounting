@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+from Crypto.PublicKey import RSA
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,6 +25,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool)
+RSA_KEY = RSA.generate(2048)
 
 ALLOWED_HOSTS = [config('WEB_HOST'),'*']
 # ALLOWED_HOSTS = ['127.0.0.1',]
@@ -90,6 +92,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'xff.middleware.XForwardedForMiddleware',
     'axes.middleware.AxesMiddleware',
+    'utils.middleware.ForceChangePasswordMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -190,7 +193,7 @@ CAPTCHA_NOISE_FUNCTIONS = (
 )
 
 AXES_FAILURE_LIMIT = 5
-AXES_ENABLED = True
+AXES_ENABLED = False
 AXES_LOCKOUT_CALLABLE = "main.views.lockout"
 AXES_LOCKOUT_URL = '/locked'
 AXES_ENABLE_ACCESS_FAILURE_LOG = True

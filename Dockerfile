@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -y && apt-get install -y curl gnupg
-RUN apt-get install --assume-yes tcpdump iputils-ping netcat-openbsd nmap iproute2
+RUN apt-get install --assume-yes nano tcpdump iputils-ping netcat-openbsd nmap iproute2
 
 EXPOSE 8000
 # Install pip requirements

@@ -27,8 +27,14 @@ import os
 import mimetypes
 from django.db.models import Value, CharField, ExpressionWrapper
 from django.urls import reverse_lazy
+from django.contrib.auth import update_session_auth_hash
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from Crypto.Util.Padding import pad, unpad
 timezone.activate('Asia/Tehran')
 from jdatetime import datetime as jdatetime
+from Crypto.Cipher import PKCS1_OAEP
 @permission_required('accounts.add_user')
 def voucher_csvexport(request):
     try:
@@ -308,8 +314,17 @@ class PasswordResetByUser(LoginRequiredMixin, SuccessMessageMixin,PasswordChange
     template_name = 'accounts/reset-password.html'
     success_url = '/'
     success_message = 'کلمه عبور با موفقیت تغییر یافت'
+
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         try:
+            update_session_auth_hash(self.request, self.request.user)
+            self.request.user.force_change_pass = False
+            self.request.user.save()            
             users_log(self.request.user,"User","user changed password",self.request.user)                
         except:
             pass
@@ -340,7 +355,10 @@ class UserEdit(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         except:
             pass 
         return super().form_valid(form)
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) 
+        context.update({"username":self.object.username})
+        return context
 class UsersEdit(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     permission_required = 'accounts.change_user'
     model = User
@@ -373,7 +391,10 @@ class UsersEdit(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
         except:
             pass 
         return super().form_valid(form)
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) 
+        context.update({"username":self.object.username})
+        return context
 class UserDelete(PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     permission_required = 'accounts.delete_user'
     model = User
@@ -506,19 +527,33 @@ def validate_mobile_number(request):
         messages.add_message(request, messages.ERROR, "انجام عملیات امکان‌پذیر نیست. با شماره دیگری امتحان کنید.")   
         return  False
     return  True
+from Crypto.PublicKey import RSA
+import base64
+import json
+from Crypto.Cipher import PKCS1_v1_5
+
 def login_view(request):
     if not request.user.is_authenticated:
         if request.method == 'POST':
-            form = loginform(request=request, data=request.POST)
+            privateKey = settings.RSA_KEY.exportKey('PEM')
+            RSAprivateKey = RSA.importKey(privateKey)
+            cipher = PKCS1_v1_5.new(RSAprivateKey)
+            print("*****pass:",request.POST['password'])
+            encrypted_data = base64.b64decode(request.POST['password'])
+            decrypted_data = cipher.decrypt(encrypted_data, None)
+            new_request=request
+            post_data = new_request.POST.copy()
+            post_data['password'] = decrypted_data
+            form = loginform(request=new_request, data=post_data)
             if form.is_valid():
                 username = form.cleaned_data.get('username')
                 password = form.cleaned_data.get('password')
+
                 user = authenticate(
                     request, username=username, password=password)
+                
                 if user is not None:
                     login(request, user)
-                    if user.force_change_pass:
-                        return redirect('/accounts/resetpassword')
                     return redirect('/')
                 else:
                     messages.add_message(

@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm,UserCreationForm,UserCh
 from captcha.fields import CaptchaField,CaptchaTextInput
 from django import forms
 from .helpers import normalize_mobile_number
+from django.core.exceptions import ValidationError
 class AxesCaptchaForm(forms.Form):
     captcha = CaptchaField(
     required=False, label='', error_messages={'invalid': 'Captcha incorrect!'}
@@ -67,8 +68,8 @@ class UsersForm(UserChangeForm):
             else:
                 visible.field.widget.attrs['class'] = 'form-control'
         # self.fields['profile'].queryset = Profile.objects.filter(created_user=self.request.user.id)
-        if instance and instance.pk:
-            self.fields['username'].widget.attrs['readonly'] = "readonly"        
+        # if instance and instance.pk:
+        #     self.fields['username'].widget.attrs['readonly'] = "readonly"        
         if not self.request.user.is_superuser:
             self.fields['organization'].queryset = Organization.objects.filter(id=self.request.user.organization.id)        
 
@@ -83,8 +84,8 @@ class UsersForm(UserChangeForm):
                 
     class Meta:
         model=User
-        fields = 'username','first_name','last_name','mobile_nu','is_active','organization','is_organization_admin'
-        read_only_fields = ('username')
+        fields = 'first_name','last_name','mobile_nu','is_active','organization','is_organization_admin'
+        read_only_fields = ("username",)    
 
     # return UsersForm
 class UserForm(UserChangeForm):
@@ -97,14 +98,16 @@ class UserForm(UserChangeForm):
                 visible.field.widget.attrs['class'] = 'form-select'
             else:
                 visible.field.widget.attrs['class'] = 'form-control'
-        self.fields['username'].widget.attrs['readonly'] = True
-        self.fields['username'].required = False
-     
-
+        # self.fields['username'].widget.attrs['readonly'] = True
+        # self.fields['username'].required = False
     class Meta:
         model=User
-        fields = 'username','first_name','last_name','mobile_nu'
-
+        fields = 'first_name','last_name','mobile_nu'
+        read_only_fields = ("username",)    
+    def clean_username(self):
+        if self.cleaned_data['username']:
+            raise ValidationError('تغییر نام کاربری امکان پذیر نیست')
+        return self.cleaned_data['username']        
 class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(forms.ModelForm, self).__init__(*args, **kwargs)
